@@ -1,1 +1,19 @@
-# MQL5 Build Artifacts*.ex5*.log*.bin# MetaEditor / Testertester/*.mqt*.mqproj.user# IDE / Editor.vscode/.idea/*.swp*.swo# OS.DS_StoreThumbs.db
+# MQL5 Build Artifacts
+*.ex5
+*.log
+*.bin
+
+# MetaEditor / Tester
+tester/
+*.mqt
+*.mqproj.user
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
