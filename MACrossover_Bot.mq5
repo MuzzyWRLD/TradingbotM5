@@ -1,13 +1,31 @@
 #include <Trade\Trade.mqh>
 
+input int InpFastMAPeriod = 20;
+input int InpSlowMAPeriod = 50;
+input ENUM_MA_METHOD InpMAMethod = MODE_SMA;
+input ENUM_APPLIED_PRICE InpAppliedPrice = PRICE_CLOSE;
+input double InpRiskPercent = 1.0;
+input int InpStopLossPoints = 500;
+input int InpTakeProfitPoints = 1500;
+input ulong InpMagicNumber = 20260918;
+input ulong InpDeviationPoints = 20;
+
 CTrade trade;
 int handle_ma20;
 int handle_ma50;
 
 int OnInit()
 {
-   handle_ma20 = iMA(_Symbol, PERIOD_CURRENT, 20, 0, MODE_SMA, PRICE_CLOSE);
-   handle_ma50 = iMA(_Symbol, PERIOD_CURRENT, 50, 0, MODE_SMA, PRICE_CLOSE);
+   if(InpFastMAPeriod < 1 || InpSlowMAPeriod <= InpFastMAPeriod || InpRiskPercent <= 0.0 || InpStopLossPoints <= 0 || InpTakeProfitPoints <= 0)
+   {
+      return INIT_PARAMETERS_INCORRECT;
+   }
+
+   trade.SetExpertMagicNumber(InpMagicNumber);
+   trade.SetDeviationInPoints(InpDeviationPoints);
+
+   handle_ma20 = iMA(_Symbol, PERIOD_CURRENT, InpFastMAPeriod, 0, InpMAMethod, InpAppliedPrice);
+   handle_ma50 = iMA(_Symbol, PERIOD_CURRENT, InpSlowMAPeriod, 0, InpMAMethod, InpAppliedPrice);
 
    if(handle_ma20 == INVALID_HANDLE || handle_ma50 == INVALID_HANDLE)
    {
@@ -90,24 +108,22 @@ void OnTick()
 
    double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
    int digits = (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS);
-   int sl_punkte = 500;
-   int tp_punkte = 1500;
 
-   double lot_size = CalculateLotSize(1.0, sl_punkte);
+   double lot_size = CalculateLotSize(InpRiskPercent, InpStopLossPoints);
    if(lot_size == 0.0) return;
 
    if(bullish_crossover)
    {
       double ask_preis = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
-      double sl_preis = NormalizeDouble(ask_preis - (sl_punkte * point), digits);
-      double tp_preis = NormalizeDouble(ask_preis + (tp_punkte * point), digits);
+      double sl_preis = NormalizeDouble(ask_preis - (InpStopLossPoints * point), digits);
+      double tp_preis = NormalizeDouble(ask_preis + (InpTakeProfitPoints * point), digits);
       trade.Buy(lot_size, _Symbol, ask_preis, sl_preis, tp_preis, "MA Crossover Buy");
    }
    else if(bearish_crossover)
    {
       double bid_preis = SymbolInfoDouble(_Symbol, SYMBOL_BID);
-      double sl_preis = NormalizeDouble(bid_preis + (sl_punkte * point), digits);
-      double tp_preis = NormalizeDouble(bid_preis - (tp_punkte * point), digits);
+      double sl_preis = NormalizeDouble(bid_preis + (InpStopLossPoints * point), digits);
+      double tp_preis = NormalizeDouble(bid_preis - (InpTakeProfitPoints * point), digits);
       trade.Sell(lot_size, _Symbol, bid_preis, sl_preis, tp_preis, "MA Crossover Sell");
    }
 }
