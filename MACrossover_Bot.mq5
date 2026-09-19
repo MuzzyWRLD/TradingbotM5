@@ -1,7 +1,7 @@
 #include <Trade\Trade.mqh>
 
-input int InpFastMAPeriod = 20;
-input int InpSlowMAPeriod = 50;
+input int FastMA_Period = 9;
+input int SlowMA_Period = 21;
 input ENUM_MA_METHOD InpMAMethod = MODE_SMA;
 input ENUM_APPLIED_PRICE InpAppliedPrice = PRICE_CLOSE;
 input double InpRiskPercent = 1.0;
@@ -16,7 +16,7 @@ int handle_ma50;
 
 int OnInit()
 {
-   if(InpFastMAPeriod < 1 || InpSlowMAPeriod <= InpFastMAPeriod || InpRiskPercent <= 0.0 || InpStopLossPoints <= 0 || InpTakeProfitPoints <= 0)
+   if(FastMA_Period < 1 || SlowMA_Period <= FastMA_Period || InpRiskPercent <= 0.0 || InpStopLossPoints <= 0 || InpTakeProfitPoints <= 0)
    {
       return INIT_PARAMETERS_INCORRECT;
    }
@@ -24,8 +24,8 @@ int OnInit()
    trade.SetExpertMagicNumber(InpMagicNumber);
    trade.SetDeviationInPoints(InpDeviationPoints);
 
-   handle_ma20 = iMA(_Symbol, PERIOD_CURRENT, InpFastMAPeriod, 0, InpMAMethod, InpAppliedPrice);
-   handle_ma50 = iMA(_Symbol, PERIOD_CURRENT, InpSlowMAPeriod, 0, InpMAMethod, InpAppliedPrice);
+   handle_ma20 = iMA(_Symbol, PERIOD_CURRENT, FastMA_Period, 0, InpMAMethod, InpAppliedPrice);
+   handle_ma50 = iMA(_Symbol, PERIOD_CURRENT, SlowMA_Period, 0, InpMAMethod, InpAppliedPrice);
 
    if(handle_ma20 == INVALID_HANDLE || handle_ma50 == INVALID_HANDLE)
    {
